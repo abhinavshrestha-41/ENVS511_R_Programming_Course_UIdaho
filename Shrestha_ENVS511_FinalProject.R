@@ -1,3 +1,15 @@
+#############################################################
+
+### Programmer: Abhinav Shrestha
+### Contact information: shre9292@vandals.uidaho.edu
+
+### Purpose: ENVS 511 Final Project - R script
+
+### Last update: 12/26/2022
+
+#############################################################
+
+#Load libraries
 library(sp)
 library(sf)
 library(raster)

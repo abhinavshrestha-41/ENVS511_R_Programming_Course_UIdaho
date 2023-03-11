@@ -7,7 +7,9 @@ Welcome to my ENVS 511 Course Repo! **ENVS 511** is a graduate level R-programmi
 
 This repo contains projects developed during the semester of the R-programming course @UIdaho. As such, the projects are limited in scope and scale due to the limited time frame of the semester. This repo contains two sub-directories with two main projects for the course:
 
-* The **'FinalProject'** sub-directory contains all the relevant files and code for the final project submitted for the course. Please review the README.md file present in the sub-directory for more information and the URL to the RPubs HTML document for the final project.
+* The **'FinalProject'** sub-directory contains all the relevant files and code for the final project submitted for the course. Please review the README.md file present in the sub-directory for more information. URL for the final project RPubs website: [FINAL PROJECT WEBSITE (click here)](https://rpubs.com/abhinav-shrestha/979241)
 
-* The **'RShinyApp'** sub-directory contains all the relavant files and code for the R Shiny App developed during the R-programming course. Please review the README.md file present in the sub-directory for more information and the URL to the R Shiny App.
+* The **'RShinyApp'** sub-directory contains all the relavant files and code for the R Shiny App developed during the R-programming course. Please review the README.md file present in the sub-directory for more information. URL for the R-ShinyApp web hosted dashboard application: [R-SHINYAPP WEBSITE (click here)](https://abhinavshrestha.shinyapps.io/Assignment15_ShinyApp/)
+
+<hr>
 

@@ -12,6 +12,9 @@ output:
 ### Loading necessary libraries
 
 ```{r warning=FALSE, message=FALSE}
+
+# Load necessary libraries
+
 library(sp)
 library(sf)
 library(raster)
@@ -37,42 +40,61 @@ Tasks for this section of the script are as follows:
 * Import shapefile representing each tree type (created in ArcGIS Pro)
 * Clip manually digitized polygon to UAV site point cloud data set to create point cloud profiles of individual tree types. 
 
-*To run this script on your own console, please un-comment and assign file location and destinations appropriately*
+Conceptual diagram for working principle of the `clip_roi` function from the `lidR` package:
 
-```{r warning=FALSE, message=FALSE}
-# ### IMPORTING point cloud as LAS catalog (easier to clip multifeature polygon) -------------------
-# las <- readLAScatalog("~\Site_pointcloud.las")
-# 
-# las$CRS #to check the CRS of the imported las. Returns 6340 -> EPSG code for NAD83(2011) / UTM zone 11N 
-# 
-# ### Importing shapefile for clipping in spatial 'simple feature' (sf) class -------------------
-# sf <- st_read(dsn = "~\TreeType.shp")                                                                                                                                                          
-# st_crs(sf) #make sure both point cloud dataset and shapefile are in the same CRS (las$CRS == st_crs(sf))
-# 
-# ### Clipping PC to shp -------------------
-# ## Set destination file path and filenaming rule (based on 'ID' feature of 'sf' dataset) 
-# opt_output_files(las) <- "~\Tree_{TreeType}"
-# 
-# ## Clip PC to shp
-# clipped_las <- clip_roi(las,sf)
+<img src="clip_ROI.png" 
+        alt="Conceptual diagram of working principle" 
+        style="display: block; margin: 0 auto" />
+<br>
+
+*To run this script on your own console, please assign ~PATH/FILENAME appropriately*
+
+```{r warning=FALSE, eval=FALSE, message=FALSE}
+
+# NOT RUN
+
+# IMPORTING point cloud as LAS catalog (easier to clip multifeature polygon) 
+
+las <- readLAScatalog("~\Site_pointcloud.las")
+
+las$CRS #to check the CRS of the imported las. Returns 6340 -> EPSG code for NAD83(2011) / UTM zone 11N
+
+
+# Importing shapefile for clipping in spatial 'simple feature' (sf) class 
+
+sf <- st_read(dsn = "~\TreeType.shp")
+
+st_crs(sf) #make sure both point cloud dataset and shapefile are in the same CRS (las$CRS == st_crs(sf))
+
+
+# Clipping PC to shp 
+
+# Set destination file path and filenaming rule (based on 'ID' feature of 'sf' dataset)
+opt_output_files(las) <- "~\Tree_{TreeType}"
+
+# Clip PC to shp
+clipped_las <- clip_roi(las,sf)
 ```
 
 ## Data manipulation, visualization, and statistical analyses of point cloud profile of tree type. 
 
 ### Importing clipped point cloud profile datasets of each tree type
 ```{r warning=FALSE}
-### Importing Point Cloud as .txt file
-topkill <- read.table('C:\\Users\\abhin\\Documents\\GitHub\\ENVS511_FinalProject\\TopKill_Set.txt', sep = "\t", header = TRUE)
 
-graytree <- read.table('C:\\Users\\abhin\\Documents\\GitHub\\ENVS511_FinalProject\\GrayTree_Set.txt', sep = "\t", header = TRUE)
+# Import Point Cloud as .txt file
 
-fulltree <- read.table('C:\\Users\\abhin\\Documents\\GitHub\\ENVS511_FinalProject\\FullTree_Set.txt', sep = "\t", header = TRUE)
+topkill <- read.table('TopKill_Set.txt', sep = "\t", header = TRUE)
+
+graytree <- read.table('GrayTree_Set.txt', sep = "\t", header = TRUE)
+
+fulltree <- read.table('FullTree_Set.txt', sep = "\t", header = TRUE)
 
 ```
 
 ### Renaming the columns of the imported dataframes
 ```{r warning=FALSE}
-### Importing Point Cloud as .txt file
+# Rename columns
+
 colnames(topkill) <- c("x", "y", "z", "blue", "green", "red", "RedEdge", "NIR", "R", "G", "B")
 colnames(graytree) <- c("x", "y", "z", "blue", "green", "red", "RedEdge", "NIR", "R", "G", "B")
 colnames(fulltree) <- c("x", "y", "z", "blue", "green", "red", "RedEdge", "NIR", "R", "G", "B")
@@ -84,17 +106,11 @@ colnames(fulltree) <- c("x", "y", "z", "blue", "green", "red", "RedEdge", "NIR",
 Calibration/corrections from Agisoft Metashape Calibration workflow (MicaSense RedEdge MX sensor) stores the point cloud data by multiplying by 10000 (for efficient storage). Therefore, we need to divide by 10000 to get true reflectance values. 
 
 ```{r warning=FALSE}
-for (i in 4:8) {
-  topkill[i] <- (topkill[i]/10000)
-}
+# Convert values to reflectances 
 
-for (i in 4:8) {
-  graytree[i] <- (graytree[i]/10000)
-}
-
-for (i in 4:8) {
-  fulltree[i] <- (fulltree[i]/10000)
-}
+topkill[4:8] <- (topkill[4:8]/10000)
+graytree[4:8] <- (graytree[4:8]/10000)
+fulltree[4:8] <- (fulltree[4:8]/10000)
 ```
 
 ### Initial Data exploration of imported point cloud profiles of each tree type:
@@ -103,6 +119,9 @@ for (i in 4:8) {
 
 #### Density distribution of spectral bands of point cloud profiles of each tree type
 ```{r warning=FALSE, out.width="100%"}
+
+# Create gg-subplot objects of spectra by tree type and merge into one plot
+
 ft <- ggplot(fulltree)+
         geom_density(aes(x = blue, color = "blue")) +
         geom_density(aes(x = green, color = "green")) +
@@ -147,15 +166,20 @@ grid.arrange(ft, gt, tk, nrow = 2, ncol = 2)
 
 ### Combining point cloud profile datasets of tree types into a merged dataset
 
-Copying imported datasets into a new dummy dataframe to create new column 'TreeType', then aggregate dummy dataframes into a main dataframe with point cloud data from all types of trees
+Copying imported datasets into a new synthetic dataframe to create new column 'TreeType', then aggregate synthetic dataframes into a main dataframe with point cloud data from all types of trees
 ```{r warning=FALSE}
+# create copy of dataset
+
 fulltree_temp <- fulltree
 graytree_temp <- graytree
 topkill_temp <- topkill
 ```
 
-Creating columns in the dummy dataframes to specify from where the point cloud data is coming from (green tree vs gray tree vs top-kill tree)
+Creating columns in the synthetic dataframes to specify from where the point cloud data is coming from (green tree vs gray tree vs top-kill tree)
 ```{r warning=FALSE}
+
+# assign tree type to rows
+
 fulltree_temp$TreeType <- "Full_Tree"
 graytree_temp$TreeType <- "Gray_Tree"
 topkill_temp$TreeType <- "Top_Kill"
@@ -163,6 +187,8 @@ topkill_temp$TreeType <- "Top_Kill"
 
 Creating main dataframe called 'main_data' and setting Tree Type as factor
 ```{r warning=FALSE}
+# combine data frame
+
 main_data <- rbind(fulltree_temp,graytree_temp,topkill_temp)
 main_data$TreeType <- factor(main_data$TreeType)
 ```
@@ -170,7 +196,9 @@ main_data$TreeType <- factor(main_data$TreeType)
 Creating a concatenated list of colors for creating plots *useful for creating a color theme for plotting*
 
 ```{r warning=FALSE}
-mycolors <- c("chartreuse4", "dark gray", "orange") #for green, gray, and top-kill trees respectively.
+# color pallete for plotting
+
+mycolors <- c("chartreuse4", "darkgray", "orange") #for green, gray, and top-kill trees respectively.
 
 ```
  
@@ -425,7 +453,7 @@ Using the [rayshader](https://www.rayshader.com/index.html) R-package to create 
 
 ***Feel free to use your mouse to drag and pan the 3D representation***
 
-```{r warning=FALSE}
+```{r warning=FALSE, out.width="100%"}
 Density2D <- ggplot(main_data, aes(GLI, z))+
   stat_density_2d_filled(aes(fill = stat(nlevel)))+
   facet_wrap(TreeType~.)+

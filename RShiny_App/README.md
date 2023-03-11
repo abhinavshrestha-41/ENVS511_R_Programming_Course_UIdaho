@@ -15,3 +15,5 @@ The R-ShinyApp repo contains:
 * The outputs are a raster (image) of the state with the projected variable (maximum temperature or average precipitation) and a scatter plot of the projected variable by month with the input month highlighted. 
 
 <hr>
+
+![image](https://user-images.githubusercontent.com/116584687/224510962-ee9040d6-591f-4c4e-b802-119e868d5ff2.png)
